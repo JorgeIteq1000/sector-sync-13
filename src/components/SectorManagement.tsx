@@ -49,8 +49,8 @@ const SectorManagement = ({ sectors, tasks, onClose, onSectorUpdated }: SectorMa
       if (error) throw error;
 
       toast({
-        title: 'Setor Criado',
-        description: 'O novo setor foi criado com sucesso.',
+        title: 'Sector Created',
+        description: 'New sector has been successfully created.',
       });
 
       setSectorName('');
@@ -59,8 +59,8 @@ const SectorManagement = ({ sectors, tasks, onClose, onSectorUpdated }: SectorMa
     } catch (error) {
       console.error('Error creating sector:', error);
       toast({
-        title: 'Erro',
-        description: 'Falha ao criar o setor. Por favor, tente novamente.',
+        title: 'Error',
+        description: 'Failed to create sector. Please try again.',
         variant: 'destructive'
       });
     } finally {
@@ -83,8 +83,8 @@ const SectorManagement = ({ sectors, tasks, onClose, onSectorUpdated }: SectorMa
       if (error) throw error;
 
       toast({
-        title: 'Setor Atualizado',
-        description: 'O nome do setor foi atualizado com sucesso.',
+        title: 'Sector Updated',
+        description: 'Sector name has been successfully updated.',
       });
 
       setSectorName('');
@@ -93,8 +93,8 @@ const SectorManagement = ({ sectors, tasks, onClose, onSectorUpdated }: SectorMa
     } catch (error) {
       console.error('Error updating sector:', error);
       toast({
-        title: 'Erro',
-        description: 'Falha ao atualizar o setor. Por favor, tente novamente.',
+        title: 'Error',
+        description: 'Failed to update sector. Please try again.',
         variant: 'destructive'
       });
     } finally {
@@ -106,11 +106,11 @@ const SectorManagement = ({ sectors, tasks, onClose, onSectorUpdated }: SectorMa
     const taskCount = getSectorTaskCount(sector.id);
     
     if (taskCount > 0) {
-      if (!confirm(`Este setor possui ${taskCount} tarefa(s). Tem certeza que deseja excluí-lo? Esta ação não pode ser desfeita.`)) {
+      if (!confirm(`This sector has ${taskCount} task(s). Are you sure you want to delete it? This action cannot be undone.`)) {
         return;
       }
     } else {
-      if (!confirm('Tem certeza que deseja excluir este setor?')) {
+      if (!confirm('Are you sure you want to delete this sector?')) {
         return;
       }
     }
@@ -126,16 +126,16 @@ const SectorManagement = ({ sectors, tasks, onClose, onSectorUpdated }: SectorMa
       if (error) throw error;
 
       toast({
-        title: 'Setor Excluído',
-        description: 'O setor foi excluído com sucesso.',
+        title: 'Sector Deleted',
+        description: 'Sector has been successfully deleted.',
       });
 
       onSectorUpdated();
     } catch (error) {
       console.error('Error deleting sector:', error);
       toast({
-        title: 'Erro',
-        description: 'Falha ao excluir o setor. Por favor, tente novamente.',
+        title: 'Error',
+        description: 'Failed to delete sector. Please try again.',
         variant: 'destructive'
       });
     } finally {
@@ -167,7 +167,7 @@ const SectorManagement = ({ sectors, tasks, onClose, onSectorUpdated }: SectorMa
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Building2 className="h-5 w-5" />
-            Gerenciamento de Setores
+            Sector Management
           </DialogTitle>
         </DialogHeader>
 
@@ -177,27 +177,27 @@ const SectorManagement = ({ sectors, tasks, onClose, onSectorUpdated }: SectorMa
             <Card>
               <CardHeader>
                 <CardTitle className="text-sm">
-                  {editingSector ? 'Editar Setor' : 'Criar Novo Setor'}
+                  {editingSector ? 'Edit Sector' : 'Create New Sector'}
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <form onSubmit={editingSector ? handleUpdateSector : handleCreateSector} className="space-y-3">
                   <div className="space-y-2">
-                    <Label htmlFor="sectorName">Nome do Setor</Label>
+                    <Label htmlFor="sectorName">Sector Name</Label>
                     <Input
                       id="sectorName"
                       value={sectorName}
                       onChange={(e) => setSectorName(e.target.value)}
-                      placeholder="Digite o nome do setor"
+                      placeholder="Enter sector name"
                       required
                     />
                   </div>
                   <div className="flex gap-2">
                     <Button type="submit" disabled={loading} size="sm">
-                      {loading ? 'Salvando...' : (editingSector ? 'Atualizar' : 'Criar')}
+                      {loading ? 'Saving...' : (editingSector ? 'Update' : 'Create')}
                     </Button>
                     <Button type="button" variant="outline" size="sm" onClick={cancelEdit}>
-                      Cancelar
+                      Cancel
                     </Button>
                   </div>
                 </form>
@@ -209,7 +209,7 @@ const SectorManagement = ({ sectors, tasks, onClose, onSectorUpdated }: SectorMa
           {!showCreateForm && !editingSector && (
             <Button onClick={startCreate} className="w-full">
               <Plus className="h-4 w-4 mr-2" />
-              Criar Novo Setor
+              Create New Sector
             </Button>
           )}
 
@@ -221,7 +221,7 @@ const SectorManagement = ({ sectors, tasks, onClose, onSectorUpdated }: SectorMa
                   <div>
                     <h3 className="font-medium">{sector.name}</h3>
                     <p className="text-sm text-muted-foreground">
-                      {getSectorTaskCount(sector.id)} tarefa(s)
+                      {getSectorTaskCount(sector.id)} task(s)
                     </p>
                   </div>
                   <div className="flex gap-2">
@@ -249,7 +249,7 @@ const SectorManagement = ({ sectors, tasks, onClose, onSectorUpdated }: SectorMa
 
           <div className="flex justify-end pt-4">
             <Button variant="outline" onClick={onClose}>
-              Fechar
+              Close
             </Button>
           </div>
         </div>

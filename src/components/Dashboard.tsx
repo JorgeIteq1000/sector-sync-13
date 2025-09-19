@@ -55,8 +55,8 @@ const Dashboard = () => {
       setSectors(sectorsData || []);
       setTasks(tasksData || []);
     } catch (error) {
-      console.error('Erro ao buscar dados:', error);
-      toast({ title: 'Erro', description: 'Falha ao buscar os dados.', variant: 'destructive' });
+      console.error('Error fetching data:', error);
+      toast({ title: 'Error', description: 'Failed to fetch data.', variant: 'destructive' });
     } finally {
       setLoading(false);
     }
@@ -73,7 +73,7 @@ const Dashboard = () => {
   const handleLogout = async () => {
     const { error } = await signOut();
     if (error) {
-      toast({ title: 'Erro', description: 'Falha ao sair. Por favor, tente novamente.', variant: 'destructive' });
+      toast({ title: 'Error', description: 'Failed to log out.', variant: 'destructive' });
     }
   };
 
@@ -104,7 +104,7 @@ const Dashboard = () => {
             </div>
             <div className="flex items-center space-x-2">
               <Badge variant="secondary" className="text-sm">
-                {profile?.role === 'ceo' ? 'CEO' : 'Colaborador'}
+                {profile?.role === 'ceo' ? 'CEO' : 'Collaborator'}
               </Badge>
               <span className="text-sm text-muted-foreground">
                 {profile?.full_name}
@@ -122,7 +122,7 @@ const Dashboard = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
            <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Tarefas Pendentes</CardTitle>
+              <CardTitle className="text-sm font-medium">Pending Tasks</CardTitle>
               <Clock className="h-4 w-4 text-warning" />
             </CardHeader>
             <CardContent>
@@ -131,7 +131,7 @@ const Dashboard = () => {
           </Card>
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Concluídas</CardTitle>
+              <CardTitle className="text-sm font-medium">Delivered</CardTitle>
               <CheckCircle className="h-4 w-4 text-success" />
             </CardHeader>
             <CardContent>
@@ -140,7 +140,7 @@ const Dashboard = () => {
           </Card>
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Não Entregues</CardTitle>
+              <CardTitle className="text-sm font-medium">Not Delivered</CardTitle>
               <XCircle className="h-4 w-4 text-destructive" />
             </CardHeader>
             <CardContent>
@@ -149,7 +149,7 @@ const Dashboard = () => {
           </Card>
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Atrasadas</CardTitle>
+              <CardTitle className="text-sm font-medium">Overdue</CardTitle>
               <AlertCircle className="h-4 w-4 text-urgent" />
             </CardHeader>
             <CardContent>
@@ -164,20 +164,20 @@ const Dashboard = () => {
             <div className="flex flex-wrap gap-2">
               <Button onClick={() => setShowTaskForm(true)} className="bg-primary hover:bg-primary/90">
                 <Plus className="h-4 w-4 mr-2" />
-                Nova Tarefa
+                New Task
               </Button>
               <Button variant="outline" onClick={() => setShowSectorManagement(true)}>
                 <Building2 className="h-4 w-4 mr-2" />
-                Gerenciar Setores
+                Manage Sectors
               </Button>
             </div>
           )}
           <Tabs value={filterStatus} onValueChange={(value) => setFilterStatus(value as any)} className="ml-auto">
             <TabsList>
-              <TabsTrigger value="pending">Pendentes</TabsTrigger>
-              <TabsTrigger value="delivered">Concluídas</TabsTrigger>
-              <TabsTrigger value="not_delivered">Não Entregues</TabsTrigger>
-              <TabsTrigger value="all">Todas</TabsTrigger>
+              <TabsTrigger value="pending">Pending</TabsTrigger>
+              <TabsTrigger value="delivered">Delivered</TabsTrigger>
+              <TabsTrigger value="not_delivered">Not Delivered</TabsTrigger>
+              <TabsTrigger value="all">All</TabsTrigger>
             </TabsList>
           </Tabs>
         </div>
@@ -201,7 +201,7 @@ const Dashboard = () => {
                       <CardTitle className="flex items-center justify-between text-left">
                         <span>{sector.name}</span>
                         <Badge variant="secondary">
-                          {filteredAndSortedTasks.length} tarefas
+                          {filteredAndSortedTasks.length} tasks
                         </Badge>
                       </CardTitle>
                     </CardHeader>

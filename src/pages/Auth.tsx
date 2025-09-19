@@ -14,6 +14,7 @@ const Auth = () => {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   
+  // Form states
   const [signInData, setSignInData] = useState({ email: '', password: '' });
   const [signUpData, setSignUpData] = useState({ email: '', password: '', fullName: '' });
 
@@ -37,7 +38,7 @@ const Auth = () => {
 
     if (error) {
       toast({
-        title: "Falha no Login",
+        title: "Sign In Failed",
         description: error.message,
         variant: "destructive"
       });
@@ -54,14 +55,14 @@ const Auth = () => {
 
     if (error) {
       toast({
-        title: "Falha no Cadastro",
+        title: "Sign Up Failed",
         description: error.message,
         variant: "destructive"
       });
     } else {
       toast({
-        title: "Conta Criada",
-        description: "Por favor, verifique seu e-mail para confirmar sua conta.",
+        title: "Account Created",
+        description: "Please check your email to verify your account.",
       });
     }
 
@@ -74,28 +75,28 @@ const Auth = () => {
         <div className="flex items-center justify-center mb-8">
           <div className="flex items-center space-x-2">
             <Building2 className="h-8 w-8 text-primary" />
-            <h1 className="text-2xl font-bold text-foreground">Sincronização de Tarefas</h1>
+            <h1 className="text-2xl font-bold text-foreground">TaskSync</h1>
           </div>
         </div>
 
         <Card className="shadow-lg border-border">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl text-center">Bem-vindo</CardTitle>
+            <CardTitle className="text-2xl text-center">Welcome</CardTitle>
             <CardDescription className="text-center">
-              Gestão profissional de tarefas para sua organização
+              Professional task management for your organization
             </CardDescription>
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="signin" className="w-full">
               <TabsList className="grid w-full grid-cols-2 mb-4">
-                <TabsTrigger value="signin">Entrar</TabsTrigger>
-                <TabsTrigger value="signup">Inscrever-se</TabsTrigger>
+                <TabsTrigger value="signin">Sign In</TabsTrigger>
+                <TabsTrigger value="signup">Sign Up</TabsTrigger>
               </TabsList>
               
               <TabsContent value="signin">
                 <form onSubmit={handleSignIn} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="signin-email">E-mail</Label>
+                    <Label htmlFor="signin-email">Email</Label>
                     <Input
                       id="signin-email"
                       type="email"
@@ -106,7 +107,7 @@ const Auth = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="signin-password">Senha</Label>
+                    <Label htmlFor="signin-password">Password</Label>
                     <Input
                       id="signin-password"
                       type="password"
@@ -121,7 +122,7 @@ const Auth = () => {
                     className="w-full bg-primary hover:bg-primary/90" 
                     disabled={isLoading}
                   >
-                    {isLoading ? 'Entrando...' : 'Entrar'}
+                    {isLoading ? 'Signing In...' : 'Sign In'}
                   </Button>
                 </form>
               </TabsContent>
@@ -129,7 +130,7 @@ const Auth = () => {
               <TabsContent value="signup">
                 <form onSubmit={handleSignUp} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="signup-name">Nome Completo</Label>
+                    <Label htmlFor="signup-name">Full Name</Label>
                     <Input
                       id="signup-name"
                       type="text"
@@ -140,7 +141,7 @@ const Auth = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="signup-email">E-mail</Label>
+                    <Label htmlFor="signup-email">Email</Label>
                     <Input
                       id="signup-email"
                       type="email"
@@ -151,7 +152,7 @@ const Auth = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="signup-password">Senha</Label>
+                    <Label htmlFor="signup-password">Password</Label>
                     <Input
                       id="signup-password"
                       type="password"
@@ -166,16 +167,16 @@ const Auth = () => {
                     className="w-full bg-primary hover:bg-primary/90" 
                     disabled={isLoading}
                   >
-                    {isLoading ? 'Criando conta...' : 'Criar Conta'}
+                    {isLoading ? 'Creating Account...' : 'Create Account'}
                   </Button>
                 </form>
               </TabsContent>
             </Tabs>
             
             <div className="mt-6 p-4 bg-muted rounded-lg text-sm text-muted-foreground">
-              <p className="font-medium mb-1">Contas de demonstração:</p>
+              <p className="font-medium mb-1">Demo Accounts:</p>
               <p>CEO: ceo@company.com</p>
-              <p>Colaborador: user@company.com</p>
+              <p>Collaborator: user@company.com</p>
             </div>
           </CardContent>
         </Card>
