@@ -42,11 +42,38 @@ const SectorManagement = ({ sectors, tasks, onClose, onSectorUpdated }: SectorMa
     setLoading(true);
 
     try {
-      const { error } = await supabase
+      // Ensure user is authenticated and is CEO (RLS requires CEO role to manage sectors)
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user) {
+        throw new Error('Usuário não autenticado');
+      }
+
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', session.user.id)
+        .single();
+
+      if (profileError || !profileData || profileData.role !== 'ceo') {
+        throw new Error('Usuário não autorizado');
+      }
+
+      console.debug('Creating sector, session:', session);
+      console.debug('Creating sector, profile:', profileData);
+
+      const res = await supabase
         .from('sectors')
         .insert([{ name: sectorName }]);
 
-      if (error) throw error;
+      console.debug('Create sector result:', res);
+
+      if (res.error) {
+        // If RLS blocks the insert, surface a clearer message
+        if ((res.error as any).code === '42501') {
+          throw new Error('Operação não autorizada pelo servidor (RLS)');
+        }
+        throw res.error;
+      }
 
       toast({
         title: 'Setor Criado',
@@ -75,12 +102,38 @@ const SectorManagement = ({ sectors, tasks, onClose, onSectorUpdated }: SectorMa
     setLoading(true);
 
     try {
-      const { error } = await supabase
+      // Ensure user is authenticated and is CEO (RLS requires CEO role to manage sectors)
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user) {
+        throw new Error('Usuário não autenticado');
+      }
+
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', session.user.id)
+        .single();
+
+      if (profileError || !profileData || profileData.role !== 'ceo') {
+        throw new Error('Usuário não autorizado');
+      }
+
+      console.debug('Updating sector, session:', session);
+      console.debug('Updating sector, profile:', profileData);
+
+      const res = await supabase
         .from('sectors')
         .update({ name: sectorName })
         .eq('id', editingSector.id);
 
-      if (error) throw error;
+      console.debug('Update sector result:', res);
+
+      if (res.error) {
+        if ((res.error as any).code === '42501') {
+          throw new Error('Operação não autorizada pelo servidor (RLS)');
+        }
+        throw res.error;
+      }
 
       toast({
         title: 'Setor Atualizado',
@@ -118,12 +171,38 @@ const SectorManagement = ({ sectors, tasks, onClose, onSectorUpdated }: SectorMa
     setLoading(true);
 
     try {
-      const { error } = await supabase
+      // Ensure user is authenticated and is CEO (RLS requires CEO role to manage sectors)
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user) {
+        throw new Error('Usuário não autenticado');
+      }
+
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', session.user.id)
+        .single();
+
+      if (profileError || !profileData || profileData.role !== 'ceo') {
+        throw new Error('Usuário não autorizado');
+      }
+
+      console.debug('Deleting sector, session:', session);
+      console.debug('Deleting sector, profile:', profileData);
+
+      const res = await supabase
         .from('sectors')
         .delete()
         .eq('id', sector.id);
 
-      if (error) throw error;
+      console.debug('Delete sector result:', res);
+
+      if (res.error) {
+        if ((res.error as any).code === '42501') {
+          throw new Error('Operação não autorizada pelo servidor (RLS)');
+        }
+        throw res.error;
+      }
 
       toast({
         title: 'Setor Excluído',
