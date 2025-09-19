@@ -16,48 +16,62 @@ export const useAuth = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Set up auth state listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+    setLoading(true);
+
+    const checkSession = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
         setSession(session);
         setUser(session?.user ?? null);
-        
+
         if (session?.user) {
-          // Fetch user profile
-          const { data: profileData } = await supabase
+          const { data: profileData, error: profileError } = await supabase
             .from('profiles')
             .select('*')
             .eq('id', session.user.id)
             .single();
           
-          setProfile(profileData);
+          // Se a sessão existe mas o perfil não foi encontrado, é uma sessão inválida.
+          // Deslogamos o usuário para limpar o localStorage.
+          if (profileError || !profileData) {
+            await supabase.auth.signOut();
+            setProfile(null);
+          } else {
+            setProfile(profileData);
+          }
         } else {
           setProfile(null);
         }
-        
+      } catch (e) {
+        console.error("Error checking session:", e);
+        setProfile(null);
+      } finally {
+        // ESSENCIAL: Garante que o loading sempre termine, mesmo se houver erro.
         setLoading(false);
+      }
+    };
+    
+    checkSession();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        setSession(session);
+        setUser(session?.user ?? null);
+        
+        if (session?.user) {
+          supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', session.user.id)
+            .single()
+            .then(({ data: profileData }) => {
+              setProfile(profileData);
+            });
+        } else {
+          setProfile(null);
+        }
       }
     );
-
-    // Check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      
-      if (session?.user) {
-        supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', session.user.id)
-          .single()
-          .then(({ data: profileData }) => {
-            setProfile(profileData);
-            setLoading(false);
-          });
-      } else {
-        setLoading(false);
-      }
-    });
 
     return () => subscription.unsubscribe();
   }, []);

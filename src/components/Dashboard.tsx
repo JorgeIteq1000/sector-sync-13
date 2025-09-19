@@ -5,7 +5,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { Plus, Calendar, AlertCircle, CheckCircle, XCircle, Building2, Clock, LogOut } from 'lucide-react';
+import { Plus, Building2, LogOut, Clock, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import TaskForm from './TaskForm';
 import SectorManagement from './SectorManagement';
 import TaskList from './TaskList';
@@ -39,66 +41,28 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [showTaskForm, setShowTaskForm] = useState(false);
   const [showSectorManagement, setShowSectorManagement] = useState(false);
+  const [filterStatus, setFilterStatus] = useState<'all' | 'pending' | 'delivered' | 'not_delivered'>('pending');
 
   useEffect(() => {
     fetchData();
   }, []);
 
   const fetchData = async () => {
+    setLoading(true);
     try {
-      // Fetch sectors
-      const { data: sectorsData } = await supabase
-        .from('sectors')
-        .select('*')
-        .order('name');
-
-      // Fetch tasks with sectors
-      const { data: tasksData } = await supabase
-        .from('tasks')
-        .select(`
-          *,
-          sector:sectors(*)
-        `)
-        .order('deadline');
-
+      const { data: sectorsData } = await supabase.from('sectors').select('*').order('name');
+      const { data: tasksData } = await supabase.from('tasks').select('*, sector:sectors(*)').order('deadline');
       setSectors(sectorsData || []);
       setTasks(tasksData || []);
     } catch (error) {
       console.error('Error fetching data:', error);
+      toast({ title: 'Error', description: 'Failed to fetch data.', variant: 'destructive' });
     } finally {
       setLoading(false);
     }
   };
 
-  const getUrgencyColor = (urgency: string) => {
-    switch (urgency) {
-      case 'urgent':
-        return 'bg-urgent text-urgent-foreground';
-      case 'relatively_urgent':
-        return 'bg-relatively-urgent text-relatively-urgent-foreground';
-      case 'not_urgent':
-        return 'bg-not-urgent text-not-urgent-foreground';
-      default:
-        return 'bg-muted text-muted-foreground';
-    }
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'delivered':
-        return 'bg-success text-success-foreground';
-      case 'not_delivered':
-        return 'bg-destructive text-destructive-foreground';
-      case 'pending':
-        return 'bg-warning text-warning-foreground';
-      default:
-        return 'bg-muted text-muted-foreground';
-    }
-  };
-
-  const isOverdue = (deadline: string) => {
-    return new Date(deadline) < new Date();
-  };
+  const isOverdue = (deadline: string) => new Date(deadline) < new Date();
 
   // Calculate stats
   const pendingTasks = tasks.filter(t => t.status === 'pending').length;
@@ -109,11 +73,7 @@ const Dashboard = () => {
   const handleLogout = async () => {
     const { error } = await signOut();
     if (error) {
-      toast({
-        title: 'Error',
-        description: 'Failed to log out. Please try again.',
-        variant: 'destructive'
-      });
+      toast({ title: 'Error', description: 'Failed to log out.', variant: 'destructive' });
     }
   };
 
@@ -124,6 +84,13 @@ const Dashboard = () => {
       </div>
     );
   }
+
+  // Define a ordem de prioridade dos status para ordenação
+  const statusOrder = {
+    'pending': 1,
+    'delivered': 2,
+    'not_delivered': 3
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -153,7 +120,7 @@ const Dashboard = () => {
       <div className="container mx-auto px-4 py-6">
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-          <Card>
+           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Pending Tasks</CardTitle>
               <Clock className="h-4 w-4 text-warning" />
@@ -162,7 +129,6 @@ const Dashboard = () => {
               <div className="text-2xl font-bold">{pendingTasks}</div>
             </CardContent>
           </Card>
-
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Delivered</CardTitle>
@@ -172,7 +138,6 @@ const Dashboard = () => {
               <div className="text-2xl font-bold">{deliveredTasks}</div>
             </CardContent>
           </Card>
-
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Not Delivered</CardTitle>
@@ -182,7 +147,6 @@ const Dashboard = () => {
               <div className="text-2xl font-bold">{notDeliveredTasks}</div>
             </CardContent>
           </Card>
-
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Overdue</CardTitle>
@@ -194,67 +158,73 @@ const Dashboard = () => {
           </Card>
         </div>
 
-        {/* Action Buttons */}
-        {isCEO && (
-          <div className="flex flex-wrap gap-2 mb-6">
-            <Button
-              onClick={() => setShowTaskForm(true)}
-              className="bg-primary hover:bg-primary/90"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              New Task
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => setShowSectorManagement(true)}
-            >
-              <Building2 className="h-4 w-4 mr-2" />
-              Manage Sectors
-            </Button>
-          </div>
-        )}
-
-        {/* Tasks by Sector */}
-        <div className="space-y-6">
-          {sectors.map((sector) => (
-            <Card key={sector.id}>
-              <CardHeader>
-                <CardTitle className="flex items-center justify-between">
-                  <span>{sector.name}</span>
-                  <Badge variant="secondary">
-                    {tasks.filter(t => t.sector_id === sector.id).length} tasks
-                  </Badge>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <TaskList
-                  tasks={tasks.filter(t => t.sector_id === sector.id)}
-                  onTaskUpdate={fetchData}
-                  showActions={isCEO}
-                />
-              </CardContent>
-            </Card>
-          ))}
+        {/* Action Buttons & Filters */}
+        <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+          {isCEO && (
+            <div className="flex flex-wrap gap-2">
+              <Button onClick={() => setShowTaskForm(true)} className="bg-primary hover:bg-primary/90">
+                <Plus className="h-4 w-4 mr-2" />
+                New Task
+              </Button>
+              <Button variant="outline" onClick={() => setShowSectorManagement(true)}>
+                <Building2 className="h-4 w-4 mr-2" />
+                Manage Sectors
+              </Button>
+            </div>
+          )}
+          <Tabs value={filterStatus} onValueChange={(value) => setFilterStatus(value as any)} className="ml-auto">
+            <TabsList>
+              <TabsTrigger value="pending">Pending</TabsTrigger>
+              <TabsTrigger value="delivered">Delivered</TabsTrigger>
+              <TabsTrigger value="not_delivered">Not Delivered</TabsTrigger>
+              <TabsTrigger value="all">All</TabsTrigger>
+            </TabsList>
+          </Tabs>
         </div>
+
+        {/* Tasks by Sector (Accordion) */}
+        <Accordion type="multiple" defaultValue={sectors.map(s => s.id)} className="space-y-6">
+          {sectors.map((sector) => {
+            // Filtra e ordena as tarefas para este setor
+            const filteredAndSortedTasks = tasks
+              .filter(task => 
+                task.sector_id === sector.id && 
+                (filterStatus === 'all' || task.status === filterStatus)
+              )
+              .sort((a, b) => statusOrder[a.status] - statusOrder[b.status]);
+
+            return (
+              <AccordionItem value={sector.id} key={sector.id} className="border-none">
+                <Card>
+                  <AccordionTrigger className="w-full">
+                    <CardHeader className="flex-1 p-4">
+                      <CardTitle className="flex items-center justify-between text-left">
+                        <span>{sector.name}</span>
+                        <Badge variant="secondary">
+                          {filteredAndSortedTasks.length} tasks
+                        </Badge>
+                      </CardTitle>
+                    </CardHeader>
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    <CardContent>
+                      <TaskList
+                        tasks={filteredAndSortedTasks}
+                        onTaskUpdate={fetchData}
+                        showActions={isCEO}
+                      />
+                    </CardContent>
+                  </AccordionContent>
+                </Card>
+              </AccordionItem>
+            );
+          })}
+        </Accordion>
       </div>
 
       {/* Modals */}
-      {showTaskForm && (
-        <TaskForm
-          sectors={sectors}
-          onClose={() => setShowTaskForm(false)}
-          onTaskCreated={fetchData}
-        />
-      )}
-
-      {showSectorManagement && (
-        <SectorManagement
-          sectors={sectors}
-          tasks={tasks}
-          onClose={() => setShowSectorManagement(false)}
-          onSectorUpdated={fetchData}
-        />
-      )}
+      {showTaskForm && <TaskForm sectors={sectors} onClose={() => setShowTaskForm(false)} onTaskCreated={fetchData} />}
+      {showSectorManagement && <SectorManagement sectors={sectors} tasks={tasks} onClose={() => setShowSectorManagement(false)} onSectorUpdated={fetchData} />}
     </div>
   );
 };
