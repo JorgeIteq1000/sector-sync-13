@@ -14,7 +14,130 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      profiles: {
+        Row: {
+          created_at: string
+          full_name: string | null
+          id: string
+          role: Database["public"]["Enums"]["user_role"]
+        }
+        Insert: {
+          created_at?: string
+          full_name?: string | null
+          id: string
+          role?: Database["public"]["Enums"]["user_role"]
+        }
+        Update: {
+          created_at?: string
+          full_name?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["user_role"]
+        }
+        Relationships: []
+      }
+      sectors: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      task_history: {
+        Row: {
+          id: string
+          new_status: Database["public"]["Enums"]["task_status"]
+          observation: string | null
+          old_status: Database["public"]["Enums"]["task_status"] | null
+          task_id: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          new_status: Database["public"]["Enums"]["task_status"]
+          observation?: string | null
+          old_status?: Database["public"]["Enums"]["task_status"] | null
+          task_id: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          new_status?: Database["public"]["Enums"]["task_status"]
+          observation?: string | null
+          old_status?: Database["public"]["Enums"]["task_status"] | null
+          task_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_history_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tasks: {
+        Row: {
+          ceo_observation: string | null
+          created_at: string
+          deadline: string
+          description: string | null
+          id: string
+          sector_id: string
+          status: Database["public"]["Enums"]["task_status"]
+          title: string
+          type: Database["public"]["Enums"]["task_type"]
+          updated_at: string
+          urgency: Database["public"]["Enums"]["task_urgency"]
+        }
+        Insert: {
+          ceo_observation?: string | null
+          created_at?: string
+          deadline: string
+          description?: string | null
+          id?: string
+          sector_id: string
+          status?: Database["public"]["Enums"]["task_status"]
+          title: string
+          type: Database["public"]["Enums"]["task_type"]
+          updated_at?: string
+          urgency?: Database["public"]["Enums"]["task_urgency"]
+        }
+        Update: {
+          ceo_observation?: string | null
+          created_at?: string
+          deadline?: string
+          description?: string | null
+          id?: string
+          sector_id?: string
+          status?: Database["public"]["Enums"]["task_status"]
+          title?: string
+          type?: Database["public"]["Enums"]["task_type"]
+          updated_at?: string
+          urgency?: Database["public"]["Enums"]["task_urgency"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tasks_sector_id_fkey"
+            columns: ["sector_id"]
+            isOneToOne: false
+            referencedRelation: "sectors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +146,10 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      task_status: "pending" | "delivered" | "not_delivered"
+      task_type: "daily" | "monthly" | "temporary"
+      task_urgency: "not_urgent" | "relatively_urgent" | "urgent"
+      user_role: "ceo" | "collaborator"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +276,11 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      task_status: ["pending", "delivered", "not_delivered"],
+      task_type: ["daily", "monthly", "temporary"],
+      task_urgency: ["not_urgent", "relatively_urgent", "urgent"],
+      user_role: ["ceo", "collaborator"],
+    },
   },
 } as const
