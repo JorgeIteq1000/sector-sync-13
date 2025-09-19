@@ -97,9 +97,14 @@ const TaskList = ({ tasks, onTaskUpdate, showActions }: TaskListProps) => {
 
       if (error) throw error;
 
+      const statusMap: Record<string, string> = {
+        delivered: 'concluída',
+        not_delivered: 'não entregue'
+      };
+
       toast({
-        title: 'Task Updated',
-        description: `Task marked as ${status.replace('_', ' ')}.`,
+        title: 'Tarefa Atualizada',
+        description: `Tarefa marcada como ${statusMap[status]}.`,
       });
 
       setShowCloseDialog(false);
@@ -109,15 +114,15 @@ const TaskList = ({ tasks, onTaskUpdate, showActions }: TaskListProps) => {
     } catch (error) {
       console.error('Error updating task:', error);
       toast({
-        title: 'Error',
-        description: 'Failed to update task status.',
+        title: 'Erro',
+        description: 'Falha ao atualizar o status da tarefa.',
         variant: 'destructive'
       });
     }
   };
 
   const handleDeleteTask = async (taskId: string) => {
-    if (!confirm('Are you sure you want to delete this task?')) return;
+    if (!confirm('Tem certeza que deseja excluir esta tarefa?')) return;
 
     try {
       const { error } = await supabase
@@ -128,16 +133,16 @@ const TaskList = ({ tasks, onTaskUpdate, showActions }: TaskListProps) => {
       if (error) throw error;
 
       toast({
-        title: 'Task Deleted',
-        description: 'Task has been successfully deleted.',
+        title: 'Tarefa Excluída',
+        description: 'A tarefa foi excluída com sucesso.',
       });
 
       onTaskUpdate();
     } catch (error) {
       console.error('Error deleting task:', error);
       toast({
-        title: 'Error',
-        description: 'Failed to delete task.',
+        title: 'Erro',
+        description: 'Falha ao excluir a tarefa.',
         variant: 'destructive'
       });
     }
@@ -152,7 +157,7 @@ const TaskList = ({ tasks, onTaskUpdate, showActions }: TaskListProps) => {
   if (tasks.length === 0) {
     return (
       <p className="text-muted-foreground text-center py-4">
-        No tasks found for this sector.
+        Nenhuma tarefa encontrada para este setor.
       </p>
     );
   }
@@ -174,7 +179,7 @@ const TaskList = ({ tasks, onTaskUpdate, showActions }: TaskListProps) => {
                     {getUrgencyIcon(task.urgency)}
                     {isOverdue(task.deadline) && task.status === 'pending' && (
                       <Badge variant="destructive" className="text-xs">
-                        Overdue
+                        Atrasada
                       </Badge>
                     )}
                   </div>
@@ -183,17 +188,38 @@ const TaskList = ({ tasks, onTaskUpdate, showActions }: TaskListProps) => {
                   </p>
                   <div className="flex items-center gap-2 text-xs text-muted-foreground">
                     <Calendar className="h-3 w-3" />
-                    <span>Due: {format(new Date(task.deadline), 'MMM dd, yyyy HH:mm')}</span>
+                    <span>Prazo: {format(new Date(task.deadline), 'dd/MM/yyyy HH:mm')}</span>
                     <span className="mx-2">•</span>
-                    <span className="capitalize">{task.type}</span>
+                    <span className="capitalize">{(() => {
+                      const map: Record<string, string> = {
+                        daily: 'Diária',
+                        monthly: 'Mensal',
+                        temporary: 'Temporária'
+                      };
+                      return map[task.type] || task.type;
+                    })()}</span>
                   </div>
                 </div>
                 <div className="flex flex-col gap-2 ml-4">
                   <Badge className={getUrgencyColor(task.urgency)}>
-                    {task.urgency.replace('_', ' ')}
+                    {(() => {
+                      const map: Record<string, string> = {
+                        urgent: 'Urgente',
+                        relatively_urgent: 'Urgência Relativa',
+                        not_urgent: 'Sem Urgência'
+                      };
+                      return map[task.urgency] || task.urgency.replace('_', ' ');
+                    })()}
                   </Badge>
                   <Badge className={getStatusColor(task.status)}>
-                    {task.status.replace('_', ' ')}
+                    {(() => {
+                      const map: Record<string, string> = {
+                        delivered: 'Concluída',
+                        not_delivered: 'Não Entregue',
+                        pending: 'Pendente'
+                      };
+                      return map[task.status] || task.status.replace('_', ' ');
+                    })()}
                   </Badge>
                 </div>
               </CardTitle>
@@ -202,7 +228,7 @@ const TaskList = ({ tasks, onTaskUpdate, showActions }: TaskListProps) => {
               <CardContent className="pt-0">
                 {task.ceo_observation && (
                   <div className="mb-3 p-3 bg-muted rounded-lg">
-                    <p className="text-sm font-medium mb-1">CEO Observation:</p>
+                    <p className="text-sm font-medium mb-1">Observação do CEO:</p>
                     <p className="text-sm text-muted-foreground">{task.ceo_observation}</p>
                   </div>
                 )}
@@ -214,7 +240,7 @@ const TaskList = ({ tasks, onTaskUpdate, showActions }: TaskListProps) => {
                       className="bg-success hover:bg-success/90"
                     >
                       <CheckCircle className="h-4 w-4 mr-1" />
-                      Close Task
+                      Encerrar Tarefa
                     </Button>
                     <Button
                       size="sm"
@@ -222,7 +248,7 @@ const TaskList = ({ tasks, onTaskUpdate, showActions }: TaskListProps) => {
                       onClick={() => handleDeleteTask(task.id)}
                     >
                       <Trash2 className="h-4 w-4 mr-1" />
-                      Delete
+                      Excluir
                     </Button>
                   </div>
                 )}
@@ -236,15 +262,15 @@ const TaskList = ({ tasks, onTaskUpdate, showActions }: TaskListProps) => {
       <Dialog open={showCloseDialog} onOpenChange={setShowCloseDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Close Task: {selectedTask?.title}</DialogTitle>
+            <DialogTitle>Encerrar Tarefa: {selectedTask?.title}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <label className="text-sm font-medium">Observation (Optional)</label>
+              <label className="text-sm font-medium">Observação (Opcional)</label>
               <Textarea
                 value={observation}
                 onChange={(e) => setObservation(e.target.value)}
-                placeholder="Add any observations about this task..."
+                placeholder="Adicione observações sobre esta tarefa..."
                 className="mt-1"
               />
             </div>
@@ -254,14 +280,14 @@ const TaskList = ({ tasks, onTaskUpdate, showActions }: TaskListProps) => {
                 className="bg-success hover:bg-success/90"
               >
                 <CheckCircle className="h-4 w-4 mr-2" />
-                Mark as Delivered
+                Marcar como Concluída
               </Button>
               <Button
                 variant="destructive"
                 onClick={() => handleCloseTask('not_delivered')}
               >
                 <XCircle className="h-4 w-4 mr-2" />
-                Mark as Not Delivered
+                Marcar como Não Entregue
               </Button>
             </div>
           </div>

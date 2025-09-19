@@ -51,8 +51,8 @@ const TaskForm = ({ sectors, onClose, onTaskCreated }: TaskFormProps) => {
       if (error) throw error;
 
       toast({
-        title: 'Task Created',
-        description: 'New task has been successfully created.',
+        title: 'Tarefa Criada',
+        description: 'A nova tarefa foi criada com sucesso.',
       });
 
       onTaskCreated();
@@ -60,8 +60,8 @@ const TaskForm = ({ sectors, onClose, onTaskCreated }: TaskFormProps) => {
     } catch (error) {
       console.error('Error creating task:', error);
       toast({
-        title: 'Error',
-        description: 'Failed to create task. Please try again.',
+        title: 'Erro',
+        description: 'Falha ao criar a tarefa. Por favor, tente novamente.',
         variant: 'destructive'
       });
     } finally {
@@ -77,27 +77,27 @@ const TaskForm = ({ sectors, onClose, onTaskCreated }: TaskFormProps) => {
     <Dialog open={true} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Create New Task</DialogTitle>
+          <DialogTitle>Criar Nova Tarefa</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="title">Title *</Label>
+            <Label htmlFor="title">Título *</Label>
             <Input
               id="title"
               value={formData.title}
               onChange={(e) => handleInputChange('title', e.target.value)}
-              placeholder="Enter task title"
+              placeholder="Digite o título da tarefa"
               required
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
+            <Label htmlFor="description">Descrição</Label>
             <Textarea
               id="description"
               value={formData.description}
               onChange={(e) => handleInputChange('description', e.target.value)}
-              placeholder="Enter task description"
+              placeholder="Digite a descrição da tarefa"
               rows={3}
             />
           </div>
@@ -109,11 +109,11 @@ const TaskForm = ({ sectors, onClose, onTaskCreated }: TaskFormProps) => {
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="daily">Daily</SelectItem>
-                  <SelectItem value="monthly">Monthly</SelectItem>
-                  <SelectItem value="temporary">Temporary</SelectItem>
-                </SelectContent>
+                  <SelectContent>
+                    <SelectItem value="daily">Diária</SelectItem>
+                    <SelectItem value="monthly">Mensal</SelectItem>
+                    <SelectItem value="temporary">Temporária</SelectItem>
+                  </SelectContent>
               </Select>
             </div>
 
@@ -124,9 +124,9 @@ const TaskForm = ({ sectors, onClose, onTaskCreated }: TaskFormProps) => {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="not_urgent">Not Urgent</SelectItem>
-                  <SelectItem value="relatively_urgent">Relatively Urgent</SelectItem>
-                  <SelectItem value="urgent">Urgent</SelectItem>
+                  <SelectItem value="not_urgent">Sem Urgência</SelectItem>
+                  <SelectItem value="relatively_urgent">Urgência Relativa</SelectItem>
+                  <SelectItem value="urgent">Urgente</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -136,7 +136,7 @@ const TaskForm = ({ sectors, onClose, onTaskCreated }: TaskFormProps) => {
             <Label>Sector *</Label>
             <Select value={formData.sector_id} onValueChange={(value) => handleInputChange('sector_id', value)}>
               <SelectTrigger>
-                <SelectValue placeholder="Select sector" />
+                <SelectValue placeholder="Selecione o setor" />
               </SelectTrigger>
               <SelectContent>
                 {sectors.map(sector => (
@@ -149,7 +149,7 @@ const TaskForm = ({ sectors, onClose, onTaskCreated }: TaskFormProps) => {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="deadline">Deadline *</Label>
+            <Label htmlFor="deadline">Prazo *</Label>
             <Input
               id="deadline"
               type="datetime-local"
@@ -161,10 +161,10 @@ const TaskForm = ({ sectors, onClose, onTaskCreated }: TaskFormProps) => {
 
           <div className="flex gap-2 pt-4">
             <Button type="submit" disabled={loading} className="flex-1">
-              {loading ? 'Creating...' : 'Create Task'}
+              {loading ? 'Criando...' : 'Criar Tarefa'}
             </Button>
             <Button type="button" variant="outline" onClick={onClose}>
-              Cancel
+              Cancelar
             </Button>
           </div>
         </form>
